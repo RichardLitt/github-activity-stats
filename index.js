@@ -3,50 +3,59 @@ const _ = require('lodash')
 const githubRepositories = require('github-repositories')
 const octokit = new Octokit({
   // auth: 'e1be50d8a9153e8f44bd9560582c3ad64fc015aa'
-  auth: {
-    clientId: 'ad6c5fabf298aecbb156',
-    clientSecret: 'cfbccc56395183c941fa0a85d0be234a41aa0fcd'
-  }
+  auth: 'token 5bf0b2a5b84c65f48b1434d7851a4f83927cda3e'
 })
 
-function getAllSubscribers () {
-  githubRepositories('orbitdb')
+function getStatistics () {
+  const organization = 'orbitdb';
+  const stats = {};
+  githubRepositories(organization)
     .then(data => _.map(data, 'name'))
-    .then(data => {
-      // Show me all of the subscribers for all of the orgs
-      // Show me the deduplicated number, and the total number
-      const dedupSubs = []
-      const totalSubs = []
+    .then(async repositories => {
+      // Gather all the data
+      let counter = 0
+      for (let repo of repositories) {
+        stats[repo] = {
+          subscribers: await getRepoSubscribers(organization, repo),
+          stargazers: await getRepoStarrers(organization, repo),
+        }
+        const issuesAndPullRequests = await getRepoIssues(organization, repo)
 
-      _.map(data, (datum) => {
-        // TODO This isn't right. This should be aggregated, but map returns true.
-        getRepoSubscribers('orbitdb', datum)
-      })
-      console.log(res)
+        stats[repo].issues = issuesAndPullRequests.issues
+        stats[repo].pullRequests = issuesAndPullRequests.pullRequests
+
+        console.log(stats[repo])
+        counter += 1
+        if (counter > 2) {
+          break
+        }
+      }
     })
 }
 
-function getRepoSubscribers (owner, repo) {
-  return octokit.paginate('GET /repos/:owner/:repo/subscribers', { owner, repo, per_page: 100 })
-    .then(subscribers => _.map(subscribers, 'login')
-      // console.log(subscribers)
-      // console.log(`Total: ${subscribers.length}`)
-    )
+async function getRepoSubscribers (owner, repo) {
+  const subscribers =  await octokit.paginate('GET /repos/:owner/:repo/subscribers', { owner, repo, per_page: 100 })
+  return _.map(subscribers, 'login')
 }
 
-function getRepoStarrers () {
-  octokit.paginate('GET /repos/:owner/:repo/stargazers', { owner: 'orbitdb', repo: 'welcome', per_page: 100 })
-    .then(stargazers => {
-      stargazers = _.map(stargazers, 'login')
-      console.log(stargazers)
-      console.log(`Total: ${stargazers.length}`)
-    })
+async function getRepoStarrers (owner, repo) {
+  const stargazers = await octokit.paginate('GET /repos/:owner/:repo/stargazers', { owner, repo, per_page: 100 })
+  return _.map(stargazers, 'login')
 }
 
-getAllSubscribers()
+async function getRepoIssues (owner, repo) {
+  const issues = await octokit.paginate('GET /repos/:owner/:repo/issues', { owner, repo, per_page: 100 })
+  const open = _.filter(issues, ['state', 'open'])
+  return {
+    issues: _.map(_.filter(open, o => o.pull_request === undefined), 'number'),
+    pullRequests: _.map(_.filter(open, 'pull_request'), 'number')
+  }
+}
+
+getStatistics()
 
 module.exports = {
   getRepoStarrers,
   getRepoSubscribers,
-  getAllSubscribers
+  getStatistics
 }
