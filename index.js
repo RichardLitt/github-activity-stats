@@ -3,18 +3,17 @@ const _ = require('lodash')
 require('dotenv').config()
 const githubRepositories = require('github-repositories')
 const octokit = new Octokit({
-  // auth: 'e1be50d8a9153e8f44bd9560582c3ad64fc015aa'
   auth: `token ${process.env.TOKEN}`
 })
 
 function getStatistics () {
-  const organization = 'orbitdb';
-  const stats = {};
+  const organization = 'adventure-js'
+  const stats = {}
   githubRepositories(organization)
     .then(data => _.map(data, 'name'))
     .then(async repositories => {
       // Gather all the data
-      let counter = 0
+      let counter = repositories.length
       const totals = {}
 
       for (let repo of repositories) {
@@ -42,15 +41,19 @@ function getStatistics () {
         })
       }
 
+      console.log(`Totals:\n=======`)
       for (let key in totals) {
-        console.log(`${_.startCase(key)}: ${Math.ceil(totals[key] / counter)}`)
+        console.log(`${_.startCase(key)}: ${totals[key]}`)
       }
-
+      console.log(`\nAverages:\n=========`)
+      for (let key in totals) {
+        console.log(`${_.startCase(key)}: ${Math.round(totals[key] / counter)}`)
+      }
     })
 }
 
 async function getRepoSubscribers (owner, repo) {
-  const subscribers =  await octokit.paginate('GET /repos/:owner/:repo/subscribers', { owner, repo, per_page: 100 })
+  const subscribers = await octokit.paginate('GET /repos/:owner/:repo/subscribers', { owner, repo, per_page: 100 })
   return _.map(subscribers, 'login')
 }
 
