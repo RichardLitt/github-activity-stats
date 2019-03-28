@@ -4,6 +4,33 @@
 
 This tool will show you all of the GitHub watchers for an organization, as well as the usernames of everyone who has starred your repository. It will present both the deduplicated list of users, and the total counts across all repositories.
 
+## Installation
+
+```
+git clone git@github.com:RichardLitt/github-watchers
+cd github-watchers
+npm install
+```
+
+To run it:
+
+```
+node index.js
+```
+
+### Goal Output
+
+For six repos in a single org, here are the averages:
+Issues: 40
+PRs: 10
+Commits: 500
+Watchers: 100
+Stars: 775
+Forks: 425
+The last development was on average around a year ago, and was spread out over the past four years.
+The oldest issues averaged out to mid-2016, with the oldest PRs to mid-2017. Issues continued to be opened up to early this year.
+
+
 ## Future Goals
 
 - Histogram of starrers/subscribers over time (possible?)
