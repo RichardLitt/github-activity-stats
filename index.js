@@ -40,11 +40,6 @@ function getStatistics () {
           const statLength = stats[repo][objectType].length
           totals[objectType] = totals[objectType] ? totals[objectType] + stats[repo][objectType].length : statLength
         })
-
-        counter += 1
-        if (counter > 2) {
-          break
-        }
       }
 
       for (let key in totals) {
