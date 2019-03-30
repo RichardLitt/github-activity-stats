@@ -15,8 +15,20 @@ npm install
 To run it:
 
 ```
-node index.js
+node index.js --org=orbitdb
 ```
+
+To use a file (as for a ton of repositories):
+
+```json
+{
+  "repositories": [
+    "RichardLitt/github-watchers",
+    "RichardLitt/gh-descrition"
+  ]
+}
+```
+
 
 ### Goal Output
 
