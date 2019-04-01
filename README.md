@@ -20,6 +20,7 @@ node index.js
 
 ### Goal Output
 
+```
 For six repos in a single org, here are the averages:
 Issues: 40
 PRs: 10
@@ -29,7 +30,7 @@ Stars: 775
 Forks: 425
 The last development was on average around a year ago, and was spread out over the past four years.
 The oldest issues averaged out to mid-2016, with the oldest PRs to mid-2017. Issues continued to be opened up to early this year.
-
+```
 
 ## Future Goals
 
