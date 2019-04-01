@@ -15,7 +15,7 @@ npm install
 To run it:
 
 ```
-node index.js --org=orbitdb
+node cli.js --org=orbitdb
 ```
 
 To use a file (as for a ton of repositories):
