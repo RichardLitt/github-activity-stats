@@ -20,7 +20,6 @@ async function getStatistics (input) {
     }
   }
     // Gather all the data
-  let counter = repositories.length
   const totals = {}
   const stats = {}
 
@@ -60,7 +59,6 @@ async function getStatistics (input) {
     pushIfExists('first', pullRequestTimes, stats[repo].pullRequests)
   }
 
-
   console.log(`For ${repositories.length} repositories in the org, here are the stats:\n`)
 
   console.log('Totals:\n=======')
@@ -69,7 +67,7 @@ async function getStatistics (input) {
   }
   console.log('\nAverages:\n=========')
   for (let key in totals) {
-    console.log(`${_.startCase(key)}: ${Math.round(totals[key] / counter)}`)
+    console.log(`${_.startCase(key)}: ${Math.round(totals[key] / repositories.length)}`)
   }
 
   const [commitDiff, averageCommit] = calculateDates(commitTimes)
@@ -80,7 +78,7 @@ async function getStatistics (input) {
   if (averageCommit) {
     console.log(`The average commit date was ${averageCommit.fromNow()}, and was spread out over ${moment.duration(commitDiff, 'seconds').humanize()}.`)
   }
-  console.log(`The oldest issues averaged out to ${firstIssueAverage ? firstIssueAverage.fromNow() : 'never'}, with the oldest PRs to ${firstPullRequestAverage ? firstPullRequestAverage.fromNow() : 'never'}. Issues continued to be opened up to ${lastIssueAverage ? lastIssueAverage.fromNow() : 'never'}.`)
+  console.log(`The oldest issues averaged out to ${firstIssueAverage ? firstIssueAverage.fromNow() : 'never'}, with the oldest PRs to ${firstPullRequestAverage ? firstPullRequestAverage.fromNow() : 'never'}. Issues continued to be opened up to ${lastIssueAverage ? lastIssueAverage.fromNow() : 'never'} on average.`)
 }
 
 function pushIfExists (position, arrayToPushTo, sourceArray) {
@@ -92,10 +90,13 @@ function pushIfExists (position, arrayToPushTo, sourceArray) {
 // Returns the timeDifference and the averageDate
 function calculateDates (timesArray) {
   if (timesArray.length) {
-    const diff = (_.last(timesArray).unix() - timesArray[0].unix()) / (timesArray.length - 1)
+
+    const sumOfTimes = _.sumBy(timesArray, time => time.unix())
+    const averageOfTimes = sumOfTimes / timesArray.length
+
     return [
-      diff,
-      moment.unix(timesArray[0].unix() + diff)
+      totalDifference,
+      moment.unix(averageOfTimes) // adds the halfway point to the first value.
     ]
   } else {
     return [null, null]
