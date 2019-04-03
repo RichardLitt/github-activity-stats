@@ -59,6 +59,10 @@ async function getStatistics (input) {
     pushIfExists('first', pullRequestTimes, stats[repo].pullRequests)
   }
 
+  console.log('first issue times', issueTimes)
+  console.log('most recent issues', lastIssueTimes)
+  console.log('first request times', pullRequestTimes)
+
   console.log(`For ${repositories.length} repositories in the org, here are the stats:\n`)
 
   console.log('Totals:\n=======')
@@ -78,7 +82,7 @@ async function getStatistics (input) {
   if (averageCommit) {
     console.log(`The average commit date was ${averageCommit.fromNow()}, and was spread out over ${moment.duration(commitDiff, 'seconds').humanize()}.`)
   }
-  console.log(`The oldest issues averaged out to ${firstIssueAverage ? firstIssueAverage.fromNow() : 'never'}, with the oldest PRs to ${firstPullRequestAverage ? firstPullRequestAverage.fromNow() : 'never'}. Issues continued to be opened up to ${lastIssueAverage ? lastIssueAverage.fromNow() : 'never'} on average.`)
+  console.log(`The oldest issues averaged out to ${firstIssueAverage ? firstIssueAverage.fromNow() : 'never'}, with the oldest PRs to ${firstPullRequestAverage ? firstPullRequestAverage.fromNow() : 'never'}. Issues continued to be opened up to ${lastIssueAverage ? lastIssueAverage.fromNow() : 'never'}.`)
 }
 
 function pushIfExists (position, arrayToPushTo, sourceArray) {
@@ -93,6 +97,8 @@ function calculateDates (timesArray) {
 
     const sumOfTimes = _.sumBy(timesArray, time => time.unix())
     const averageOfTimes = sumOfTimes / timesArray.length
+    const firstUnix = timesArray[0].unix();
+    const totalDifference = _.last(timesArray).unix() - firstUnix;
 
     return [
       totalDifference,
