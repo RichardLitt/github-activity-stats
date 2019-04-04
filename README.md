@@ -29,6 +29,11 @@ To use a file (as for a ton of repositories):
 }
 ```
 
+And then run:
+
+```sh
+node cli.js --input=manifest.json # Or whatever you named it
+```
 
 ### Goal Output
 
