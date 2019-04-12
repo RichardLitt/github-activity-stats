@@ -83,7 +83,8 @@ async function getStatistics (input) {
   if (averageCommit) {
     console.log(`The average commit date was ${averageCommit.fromNow()}.`)
   }
-  console.log(`The oldest issues averaged out to ${firstIssueAverage ? firstIssueAverage.fromNow() : 'never'}, with the oldest PRs to ${firstPullRequestAverage ? firstPullRequestAverage.fromNow() : 'never'}.
+  console.log(`The oldest issue was opened ${_x.fromNow()}, and the oldest pull request (PR) ${___x.fromNow()}.
+The issues were most active ${firstIssueAverage ? firstIssueAverage.fromNow() : 'never'}, with PRs were ${firstPullRequestAverage ? firstPullRequestAverage.fromNow() : 'never'}.
 The newest issue was created ${lastIssueTimes[0].fromNow()}.`)
 }
 
@@ -98,11 +99,10 @@ function calculateDates (timesArray) {
   if (timesArray.length) {
     const sumOfTimes = _.sumBy(timesArray, time => time.unix())
     const averageOfTimes = sumOfTimes / timesArray.length
-    const firstUnix = timesArray[0].unix()
-    const totalDifference = _.last(timesArray).unix() - firstUnix
+    const firstUnix = moment.min(timesArray)
 
     return [
-      totalDifference,
+      firstUnix,
       moment.unix(averageOfTimes) // adds the halfway point to the first value.
     ]
   } else {
@@ -111,20 +111,22 @@ function calculateDates (timesArray) {
 }
 
 async function getRepoSubscribers (repo) {
-  const subscribers = await octokit.paginate('GET /repos/:repo/subscribers', { repo, per_page: 100 })
+  const subscribers = await octokit.paginate(`GET /repos/${repo}/subscribers`, { repo, per_page: 100 })
     .catch(e => undefined)
   return _.map(subscribers, 'login')
 }
 
 async function getRepoStarrers (repo) {
-  const stargazers = await octokit.paginate('GET /repos/:repo/stargazers', { repo, per_page: 100 })
+  const stargazers = await octokit.paginate(`GET /repos/${repo}/stargazers`, { repo, per_page: 100 })
     .catch(e => undefined)
   return _.map(stargazers, 'login')
 }
 
 async function getRepoIssues (repo) {
-  const issues = await octokit.paginate('GET /repos/:repo/issues', { repo, per_page: 100 })
-    .catch(e => undefined)
+  const issues = await octokit.paginate(`GET /repos/${repo}/issues`, { repo, per_page: 100 })
+    .catch(e => {
+      return undefined
+    })
   const open = _.filter(issues, ['state', 'open'])
 
   return {
@@ -134,13 +136,13 @@ async function getRepoIssues (repo) {
 }
 
 async function getCommits (repo) {
-  const commits = await octokit.paginate('GET /repos/:repo/commits', { repo, per_page: 100 })
+  const commits = await octokit.paginate(`GET /repos/${repo}/commits`, { repo, per_page: 100 })
     .catch(e => undefined)
   return _.map(commits, 'commit.author.date')
 }
 
 async function getForks (repo) {
-  const forks = await octokit.paginate('GET /repos/:repo/forks', { repo, per_page: 100 })
+  const forks = await octokit.paginate(`GET /repos/${repo}/forks`, { repo, per_page: 100 })
     .catch(e => undefined)
   return _.map(forks, 'full_name')
 }
