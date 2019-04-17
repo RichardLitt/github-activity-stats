@@ -43,7 +43,6 @@ module.exports = async function getStatistics (input, opts) {
 
   const commitTimes = []
   const issueTimes = []
-  const mostRecentIssueTimes = []
   const pullRequestTimes = []
 
   for (let repo of repositories) {
