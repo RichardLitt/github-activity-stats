@@ -60,8 +60,8 @@ module.exports = async function getStatistics (input, opts) {
 
     const objectTypes = [ 'subscribers',
       'stargazers',
-      'commits',
       'forks',
+      'commits',
       'issues',
       'pullRequests'
     ]
