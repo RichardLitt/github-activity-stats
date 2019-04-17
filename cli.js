@@ -64,9 +64,12 @@ async function getStats () {
   for (let key in output.totals) {
     log(chalk.blue(_.startCase(key)) + `: ${output.totals[key]}`)
   }
-  log(chalk.yellow('\nAverages:\n========='))
-  for (let key in output.totals) {
-    log(chalk.blue(_.startCase(key)) + `: ${Math.round(output.totals[key] / output.repositories.length)}`)
+
+  if (output.repositories.length > 1) {
+    log(chalk.yellow('\nAverages:\n========='))
+    for (let key in output.totals) {
+      log(chalk.blue(_.startCase(key)) + `: ${Math.round(output.totals[key] / output.repositories.length)}`)
+    }
   }
 
   log(chalk.yellow('\nDates:\n======'))
