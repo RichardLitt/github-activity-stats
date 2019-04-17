@@ -10,10 +10,13 @@ const octokit = new Octokit({
 module.exports = async function getStatistics (input, opts) {
   let repositories
 
-  // If it is a single repository
+  // If input is a single repository using the repo flag
   if (opts && opts.repo) {
     repositories = [opts.repo]
-  // If it is an organization
+  // If input is a repo specified in format User/repo-name
+  } else if (typeof input === 'string' && input.includes('/')) {
+    repositories = [input]
+  // If input is an organization
   } else if (typeof input === 'string') {
     repositories = _.map(await githubRepositories(input), (repo) => {
       if (!repo.fork) {
