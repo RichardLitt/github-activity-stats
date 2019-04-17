@@ -3,11 +3,12 @@ const _ = require('lodash')
 const moment = require('moment')
 require('dotenv').config()
 const githubRepositories = require('github-repositories')
-const octokit = new Octokit({
-  auth: `token ${process.env.TOKEN}`
-})
 
 module.exports = async function getStatistics (input, opts) {
+  const octokit = new Octokit({
+    auth: `token ${opts.token ? opts.token : process.env.TOKEN}`
+  })
+
   let repositories
 
   // If input is a single repository using the repo flag
@@ -47,13 +48,13 @@ module.exports = async function getStatistics (input, opts) {
 
   for (let repo of repositories) {
     stats[repo] = {
-      subscribers: await getGithubData(repo, 'subscribers', 'login'),
-      stargazers: await getGithubData(repo, 'stargazers', 'login'),
-      commits: await getGithubData(repo, 'commits', 'commit.author.date'),
-      forks: await getGithubData(repo, 'forks', 'full_name')
+      subscribers: await getGithubData(octokit, repo, 'subscribers', 'login'),
+      stargazers: await getGithubData(octokit, repo, 'stargazers', 'login'),
+      commits: await getGithubData(octokit, repo, 'commits', 'commit.author.date'),
+      forks: await getGithubData(octokit, repo, 'forks', 'full_name')
     }
 
-    const issuesAndPullRequests = await getRepoIssues(repo)
+    const issuesAndPullRequests = await getRepoIssues(octokit, repo)
     stats[repo].issues = issuesAndPullRequests.issues
     stats[repo].pullRequests = issuesAndPullRequests.pullRequests
 
@@ -121,7 +122,7 @@ function calculateDates (timesArray) {
   }
 }
 
-async function getGithubData (repo, endpoint, filter) {
+async function getGithubData (octokit, repo, endpoint, filter) {
   const val = await octokit.paginate(`GET /repos/${repo}/${endpoint}`, { repo, per_page: 100 })
     .catch(e => {
       if (e.status === 401) {
@@ -131,7 +132,7 @@ async function getGithubData (repo, endpoint, filter) {
   return _.map(val, filter)
 }
 
-async function getRepoIssues (repo) {
+async function getRepoIssues (octokit, repo) {
   const issues = await octokit.paginate(`GET /repos/${repo}/issues`, { repo, per_page: 100 })
     .catch(e => {
       return undefined
