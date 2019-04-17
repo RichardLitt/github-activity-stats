@@ -74,19 +74,23 @@ async function getStats () {
 
   log(chalk.yellow('\nDates:\n======'))
   if (output.averageCommit) {
-    log(chalk.blue('Commits:'), `The average commit date was ${output.averageCommit.fromNow()}.`)
+    log(chalk.blue('Commits:'))
+    log(`The average commit date was ${output.averageCommit.fromNow()}.`)
+    log(`The newest commit was created ${moment.max(output.commitTimes).fromNow()}.`)
   } else {
     log(chalk.blue('Commits:'), `There are no commits.`)
   }
   if (output.totals.issues >= 1) {
-    log(chalk.blue('Issues:'), `The oldest issue was opened ${moment.min(output.issueTimes).fromNow()}.`)
-    log(`The issues were most active, on average, ${output.firstIssueAverage.fromNow()}.`)
-    log(`The newest issue was created ${moment.max(output.mostRecentIssueTimes).fromNow()}.`)
+    log(chalk.blue('Issues:'))
+    log(`The oldest open issue was opened ${moment.min(output.issueTimes).fromNow()}.`)
+    log(`The open issues were most active, on average, ${output.firstIssueAverage.fromNow()}.`)
+    log(`The newest issue was created ${moment.max(output.issueTimes).fromNow()}.`)
   } else {
     log(chalk.blue('Issues:'), `There are no open issues.`)
   }
   if (output.totals.pullRequests >= 1) {
-    log(chalk.blue('PRs:'), `The oldest pull request (PR) was made ${moment.min(output.pullRequestTimes).fromNow()}.`)
+    log(chalk.blue('PRs:'))
+    log(`The oldest open pull request (PR) was made ${moment.min(output.pullRequestTimes).fromNow()}.`)
     log(`The PRs were opened, on average, ${output.firstPullRequestAverage.fromNow()}.`)
     log(`The newest PR was created ${moment.max(output.pullRequestTimes).fromNow()}.`)
   } else {

@@ -58,7 +58,8 @@ module.exports = async function getStatistics (input, opts) {
     stats[repo].issues = issuesAndPullRequests.issues
     stats[repo].pullRequests = issuesAndPullRequests.pullRequests
 
-    const objectTypes = [ 'subscribers',
+    const objectTypes = [
+      'subscribers',
       'stargazers',
       'forks',
       'commits',
@@ -71,15 +72,15 @@ module.exports = async function getStatistics (input, opts) {
     })
 
     // get the last date of each commit.
-    pushIfExists('last', commitTimes, stats[repo].commits)
-    pushIfExists('first', issueTimes, stats[repo].issues)
-    pushIfExists('last', mostRecentIssueTimes, stats[repo].issues)
-    pushIfExists('first', pullRequestTimes, stats[repo].pullRequests)
+    pushIfExists(commitTimes, stats[repo].commits)
+    pushIfExists(issueTimes, stats[repo].issues)
+    // pushIfExists(mostRecentIssueTimes, stats[repo].issues)
+    pushIfExists(pullRequestTimes, stats[repo].pullRequests)
   }
 
   const [commitDiff, averageCommit] = calculateDates(commitTimes)
   const [firstIssue, firstIssueAverage] = calculateDates(issueTimes)
-  const [mostRecentIssue, mostRecentIssuesAverage] = calculateDates(mostRecentIssueTimes)
+  // const [mostRecentIssue, mostRecentIssuesAverage] = calculateDates(mostRecentIssueTimes)
   const [firstPR, firstPullRequestAverage] = calculateDates(pullRequestTimes)
 
   return {
@@ -92,17 +93,19 @@ module.exports = async function getStatistics (input, opts) {
     pullRequestTimes,
     firstIssue,
     firstIssueAverage,
-    mostRecentIssue,
-    mostRecentIssueTimes,
-    mostRecentIssuesAverage,
+    // mostRecentIssue,
+    // mostRecentIssueTimes,
+    // mostRecentIssuesAverage,
     firstPR,
     firstPullRequestAverage
   }
 }
 
-function pushIfExists (position, arrayToPushTo, sourceArray) {
+function pushIfExists (arrayToPushTo, sourceArray) {
   if (sourceArray.length) {
-    arrayToPushTo.push(moment(_[position](sourceArray.sort())))
+    for (let x in sourceArray) {
+      arrayToPushTo.push(moment(sourceArray[x]))
+    }
   }
 }
 
