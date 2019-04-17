@@ -8,16 +8,20 @@ const octokit = new Octokit({
   auth: `token ${process.env.TOKEN}`
 })
 
-async function getStatistics (input) {
+async function getStatistics (input, opts) {
   let repositories
 
+  // If it is a single repository
+  if (opts && opts.repo) {
+    repositories = [opts.repo]
   // If it is an organization
-  if (typeof input === 'string') {
+  } else if (typeof input === 'string') {
     repositories = _.map(await githubRepositories(input), (repo) => {
       if (!repo.fork) {
         return repo.full_name
       }
     }).filter(x => x)
+  // If from a manifest
   } else {
     // TODO Make it possible to loop over multiple organizations
     if (input.repositories) {

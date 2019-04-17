@@ -24,7 +24,7 @@ To use a file (as for a ton of repositories):
 {
   "repositories": [
     "RichardLitt/github-watchers",
-    "RichardLitt/gh-descrition"
+    "RichardLitt/gh-description"
   ]
 }
 ```
