@@ -1,6 +1,5 @@
 const Octokit = require('@octokit/rest')
 const _ = require('lodash')
-const chalk = require('chalk')
 const moment = require('moment')
 require('dotenv').config()
 const githubRepositories = require('github-repositories')
@@ -8,7 +7,7 @@ const octokit = new Octokit({
   auth: `token ${process.env.TOKEN}`
 })
 
-async function getStatistics (input, opts) {
+module.exports = async function getStatistics (input, opts) {
   let repositories
 
   // If it is a single repository
@@ -34,7 +33,7 @@ async function getStatistics (input, opts) {
 
   const commitTimes = []
   const issueTimes = []
-  const lastIssueTimes = []
+  const mostRecentIssueTimes = []
   const pullRequestTimes = []
 
   for (let repo of repositories) {
@@ -64,37 +63,31 @@ async function getStatistics (input, opts) {
     // get the last date of each commit.
     pushIfExists('last', commitTimes, stats[repo].commits)
     pushIfExists('first', issueTimes, stats[repo].issues)
-    pushIfExists('last', lastIssueTimes, stats[repo].issues)
+    pushIfExists('last', mostRecentIssueTimes, stats[repo].issues)
     pushIfExists('first', pullRequestTimes, stats[repo].pullRequests)
   }
 
-  // console.log('first issue times', issueTimes)
-  // console.log('most recent issues', lastIssueTimes)
-  // console.log('first request times', pullRequestTimes)
-
-  console.log(`Here are the stats for these repositories: ${chalk.green(repositories.join(', '))}\n`)
-
-  console.log(chalk.yellow('Totals:\n======='))
-  for (let key in totals) {
-    console.log(chalk.blue(_.startCase(key)) + `: ${totals[key]}`)
-  }
-  console.log(chalk.yellow('\nAverages:\n========='))
-  for (let key in totals) {
-    console.log(chalk.blue(_.startCase(key)) + `: ${Math.round(totals[key] / repositories.length)}`)
-  }
-
   const [commitDiff, averageCommit] = calculateDates(commitTimes)
-  const [_x, firstIssueAverage] = calculateDates(issueTimes)
-  const [__x, lastIssueAverage] = calculateDates(lastIssueTimes)
-  const [___x, firstPullRequestAverage] = calculateDates(pullRequestTimes)
+  const [firstIssue, firstIssueAverage] = calculateDates(issueTimes)
+  const [mostRecentIssue, mostRecentIssuesAverage] = calculateDates(mostRecentIssueTimes)
+  const [firstPR, firstPullRequestAverage] = calculateDates(pullRequestTimes)
 
-  console.log(chalk.yellow('\nDates:\n======'))
-  if (averageCommit) {
-    console.log(`The average commit date was ${averageCommit.fromNow()}.`)
+  return {
+    repositories,
+    totals,
+    commitDiff,
+    averageCommit,
+    commitTimes,
+    issueTimes,
+    pullRequestTimes,
+    firstIssue,
+    firstIssueAverage,
+    mostRecentIssue,
+    mostRecentIssueTimes,
+    mostRecentIssuesAverage,
+    firstPR,
+    firstPullRequestAverage
   }
-  console.log(`The oldest issue was opened ${moment.min(issueTimes).fromNow()}, and the oldest pull request (PR) ${moment.min(pullRequestTimes).fromNow()}.
-The issues were most active ${firstIssueAverage ? firstIssueAverage.fromNow() : 'never'}, while the oldest PRs were ${firstPullRequestAverage ? firstPullRequestAverage.fromNow() : 'never'}.
-The newest issue was created ${moment.max(lastIssueTimes).fromNow()}.`)
 }
 
 function pushIfExists (position, arrayToPushTo, sourceArray) {
@@ -105,7 +98,6 @@ function pushIfExists (position, arrayToPushTo, sourceArray) {
 
 // Returns the timeDifference and the averageDate
 function calculateDates (timesArray) {
-  console.log(timesArray.length)
   if (timesArray.length) {
     const sumOfTimes = _.sumBy(timesArray, time => time.unix())
     const averageOfTimes = sumOfTimes / timesArray.length
@@ -124,8 +116,7 @@ async function getGithubData (repo, endpoint, filter) {
   const val = await octokit.paginate(`GET /repos/${repo}/${endpoint}`, { repo, per_page: 100 })
     .catch(e => {
       if (e.status === 401) {
-        console.log('Did you forget to use a token? This will fail for large calls.')
-        process.exit(1)
+        throw new Error('Did you forget to use a token? This will fail for large calls.')
       }
     })
   return _.map(val, filter)
@@ -143,5 +134,3 @@ async function getRepoIssues (repo) {
     pullRequests: _.map(_.filter(open, 'pull_request'), 'created_at')
   }
 }
-
-module.exports = getStatistics
