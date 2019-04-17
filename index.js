@@ -27,6 +27,12 @@ module.exports = async function getStatistics (input, opts) {
       repositories = input.repositories // Expects an Array
     }
   }
+
+  // Just in case. Happens for empty orgs.
+  if (repositories.length === 0) {
+    throw new Error('You have not specified any repositories.')
+  }
+
   // Gather all the data
   const totals = {}
   const stats = {}

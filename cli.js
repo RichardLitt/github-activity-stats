@@ -44,10 +44,16 @@ async function getStats () {
   if (cli.flags.input) {
     let input = JSON.parse(fs.readFileSync(cli.flags.input, 'utf8'))
     output = await githubWatchers(input, cli.flags)
-      .catch(e => log(e))
+      .catch(e => {
+        log(e)
+        process.exit(1)
+      })
   } else {
     output = await githubWatchers(cli.input[0], cli.flags)
-      .catch(e => log(e))
+      .catch(e => {
+        log(e)
+        process.exit(1)
+      })
   }
 
   // Since this is the CLI tool, start printing stuff to STDOUT
