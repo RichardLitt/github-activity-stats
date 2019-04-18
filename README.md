@@ -1,14 +1,14 @@
-# github-watchers
+# github-activity-stats
 
-> Get all GitHub watchers and starrers for a repo
+> Get GitHub activity statistics for a repo
 
 This tool will show you all of the GitHub watchers for an organization, as well as the usernames of everyone who has starred your repository. It will present both the deduplicated list of users, and the total counts across all repositories.
 
 ## Installation
 
 ```
-git clone git@github.com:RichardLitt/github-watchers
-cd github-watchers
+git clone git@github.com:RichardLitt/github-activity-stats
+cd github-activity-stats
 npm install
 ```
 
@@ -23,7 +23,7 @@ To use a file (as for a ton of repositories):
 ```json
 {
   "repositories": [
-    "RichardLitt/github-watchers",
+    "RichardLitt/github-activity-stats",
     "RichardLitt/gh-description"
   ],
   "organizations": [

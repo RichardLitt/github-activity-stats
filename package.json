@@ -1,8 +1,9 @@
 {
-  "name": "github-watchers",
+  "name": "github-activity-stats",
   "version": "1.0.0",
-  "description": "",
+  "description": "Get GitHub activity statistics for a repo",
   "main": "index.js",
+  "bin": "cli.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

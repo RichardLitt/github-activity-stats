@@ -4,22 +4,22 @@
 const _ = require('lodash')
 const chalk = require('chalk')
 const fs = require('fs')
-const githubWatchers = require('./')
+const githubActivityStats = require('./')
 const meow = require('meow')
 const moment = require('moment')
 const log = console.log
 
 const cli = meow(`
   Usage
-    $ github-watchers <input>
+    $ github-activity-stats <input>
 
   Options
     --input Specify an input manifest. Format: --input=manifest.json
-    --repo  Specify a repo. Format: RichardLitt/github-watchers
+    --repo  Specify a repo. Format: RichardLitt/github-activity-stats
     --token Specify a GitHub Auth token. You can also GITHUB_TOKEN in your env
 
   Examples
-    $ github-watchers
+    $ github-activity-stats
     🌈 unicorns 🌈
 `, {
   flags: {
@@ -43,13 +43,13 @@ async function getStats () {
 
   if (cli.flags.input) {
     let input = JSON.parse(fs.readFileSync(cli.flags.input, 'utf8'))
-    output = await githubWatchers(input, cli.flags)
+    output = await githubActivityStats(input, cli.flags)
       .catch(e => {
         log(e)
         process.exit(1)
       })
   } else {
-    output = await githubWatchers(cli.input[0], cli.flags)
+    output = await githubActivityStats(cli.input[0], cli.flags)
       .catch(e => {
         log(e)
         process.exit(1)
