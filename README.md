@@ -56,9 +56,6 @@ The oldest issues averaged out to mid-2016, with the oldest PRs to mid-2017. Iss
 ## Future Goals
 
 - Histogram of starrers/subscribers over time (possible?)
-- Show all the orgs that the watchers/starrers are members of
-- Show their businesses, because that's interesting
-- Get their emails
 - Show the amount of open issues in an org
 - Show the amount of open PRs in an org
 - Show the average length of open issues/PRs
