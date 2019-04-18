@@ -77,26 +77,13 @@ module.exports = async function getStatistics (input, opts) {
     pushIfExists(pullRequestTimes, stats[repo].pullRequests)
   }
 
-  const [commitDiff, averageCommit] = calculateDates(commitTimes)
-  const [firstIssue, firstIssueAverage] = calculateDates(issueTimes)
-  // const [mostRecentIssue, mostRecentIssuesAverage] = calculateDates(mostRecentIssueTimes)
-  const [firstPR, firstPullRequestAverage] = calculateDates(pullRequestTimes)
-
   return {
     repositories,
     totals,
-    commitDiff,
-    averageCommit,
-    commitTimes,
-    issueTimes,
-    pullRequestTimes,
-    firstIssue,
-    firstIssueAverage,
-    // mostRecentIssue,
-    // mostRecentIssueTimes,
-    // mostRecentIssuesAverage,
-    firstPR,
-    firstPullRequestAverage
+    averages: getAverages(totals, repositories),
+    commits: calculateDates(commitTimes),
+    pullRequests: calculateDates(pullRequestTimes),
+    issues: calculateDates(issueTimes)
   }
 }
 
@@ -108,19 +95,33 @@ function pushIfExists (arrayToPushTo, sourceArray) {
   }
 }
 
+function getAverages (totals, repositories) {
+  const newObj = {}
+  for (let key in totals) {
+    newObj[key] = Math.round(totals[key] / repositories.length)
+  }
+  return newObj
+}
+
 // Returns the timeDifference and the averageDate
 function calculateDates (timesArray) {
   if (timesArray.length) {
     const sumOfTimes = _.sumBy(timesArray, time => time.unix())
     const averageOfTimes = sumOfTimes / timesArray.length
-    const firstUnix = moment.min(timesArray)
 
-    return [
-      firstUnix,
-      moment.unix(averageOfTimes) // adds the halfway point to the first value.
-    ]
+    return {
+      times: timesArray,
+      first: moment.min(timesArray),
+      average: moment.unix(averageOfTimes), // adds the halfway point to the first value.
+      last: moment.max(timesArray)
+    }
   } else {
-    return [null, null]
+    return {
+      times: null,
+      first: null,
+      average: null,
+      last: null
+    }
   }
 }
 
