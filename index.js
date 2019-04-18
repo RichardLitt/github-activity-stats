@@ -9,7 +9,7 @@ module.exports = async function getStatistics (input, opts) {
     auth: `token ${opts.token ? opts.token : process.env.TOKEN}`
   })
 
-  let repositories
+  let repositories = []
 
   // If input is a single repository using the repo flag
   if (opts && opts.repo) {
@@ -19,16 +19,16 @@ module.exports = async function getStatistics (input, opts) {
     repositories = [input]
   // If input is an organization
   } else if (typeof input === 'string') {
-    repositories = _.map(await githubRepositories(input), (repo) => {
-      if (!repo.fork) {
-        return repo.full_name
-      }
-    }).filter(x => x)
+    repositories = await getRepositories(input)
   // If from a manifest
   } else {
-    // TODO Make it possible to loop over multiple organizations
     if (input.repositories) {
       repositories = input.repositories // Expects an Array
+    }
+    if (input.organizations) {
+      for (let org in input.organizations) {
+        repositories = repositories.concat(await getRepositories(input.organizations[org]))
+      }
     }
   }
 
@@ -93,6 +93,15 @@ function pushIfExists (arrayToPushTo, sourceArray) {
       arrayToPushTo.push(moment(sourceArray[x]))
     }
   }
+}
+
+async function getRepositories (org) {
+  const arr = _.map(await githubRepositories(org), (repo) => {
+    if (!repo.fork) {
+      return repo.full_name
+    }
+  }).filter(x => x)
+  return arr
 }
 
 function getAverages (totals, repositories) {
